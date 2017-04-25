@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"encoding/base64"
 	"sync"
 
 	"github.com/johnlauer/goserial"
@@ -78,6 +79,7 @@ type Cmd struct {
 	skippedBuffer              bool
 	willHandleCompleteResponse bool
 	pause                      int
+	base64                     bool
 }
 
 type CmdComplete struct {
@@ -324,7 +326,12 @@ func (p *serport) writerNoBuf() {
 
 		// FINALLY, OF ALL THE CODE IN THIS PROJECT
 		// WE TRULY/FINALLY GET TO WRITE TO THE SERIAL PORT!
-		_, err := p.portIo.Write([]byte(data.data)) // n2, err :=
+		bytes := []byte(data.data)
+		if data.base64 {
+			// TODO Error handling? Seems lacking overall
+			bytes, _ = base64.StdEncoding.DecodeString(data.data);
+		} 
+		_, err := p.portIo.Write(bytes) // n2, err :=
 
 		// New Pause capability after we write. Added 9/23/15
 		// This was needed because many Atmel microcontrollers just plain drop serial data
@@ -437,7 +444,8 @@ func spHandlerOpen(portname string, baud int, buftype string, isSecondary bool) 
 		log.Print("Error opening port " + err.Error())
 		//h.broadcastSys <- []byte("Error opening port. " + err.Error())
 		h.broadcastSys <- []byte("{\"Cmd\":\"OpenFail\",\"Desc\":\"Error opening port. " + err.Error() + "\",\"Port\":\"" + conf.Name + "\",\"Baud\":" + strconv.Itoa(conf.Baud) + "}")
-
+		spIsOpening = false
+		spmutex.Unlock()
 		return
 	}
 	log.Print("Opened port successfully")
