@@ -19,7 +19,7 @@ import (
 	"runtime/debug"
 	"text/template"
 	"time"
-	sp "./serialport"
+	sp "../../serialport"
 )
 
 type NullWriter int

@@ -1,18 +1,13 @@
-package serialport
+package bufferflow
 
 import (
 	"log"
-	//"regexp"
-	//"strconv"
-	//"time"
 )
 
 type BufferflowDefault struct {
 	Name string
 	Port string
 }
-
-var ()
 
 func (b *BufferflowDefault) Init() {
 	log.Println("Initting default buffer flow (which means no buffering)")

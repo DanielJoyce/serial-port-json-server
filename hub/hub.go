@@ -1,4 +1,4 @@
-package serialport
+package hub
 
 import (
 	"fmt"

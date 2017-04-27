@@ -1,4 +1,4 @@
-package serialport
+package bufferflow
 
 import (
 	"log"

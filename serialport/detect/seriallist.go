@@ -1,6 +1,6 @@
 // Supports Windows, Linux, Mac, and Raspberry Pi
 
-package serialport
+package detect
 
 import (
 	"encoding/xml"

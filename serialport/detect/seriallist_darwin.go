@@ -1,4 +1,4 @@
-package serialport
+package detect
 
 import (
 	//"fmt"

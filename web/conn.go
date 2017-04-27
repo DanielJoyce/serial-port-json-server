@@ -2,7 +2,7 @@
 
 // Going to add SSL
 
-package serialport
+package web
 
 import (
 	"log"

@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"sync"
 	"github.com/johnlauer/goserial"
-	//"github.com/facchinm/go-serial"
 	"io"
 	"log"
 	"strconv"
