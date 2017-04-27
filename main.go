@@ -19,39 +19,7 @@ import (
 	"runtime/debug"
 	"text/template"
 	"time"
-)
-
-var (
-	version      = "1.94"
-	versionFloat = float32(1.94)
-	addr         = flag.String("addr", ":8989", "http service address")
-	saddr        = flag.String("saddr", ":8990", "https service address")
-	scert        = flag.String("scert", "cert.pem", "https certificate file")
-	skey         = flag.String("skey", "key.pem", "https key file")
-	//assets       = flag.String("assets", defaultAssetPath(), "path to assets")
-	//	verbose = flag.Bool("v", true, "show debug logging")
-	verbose = flag.Bool("v", false, "show debug logging")
-	//homeTempl *template.Template
-	isLaunchSelf = flag.Bool("ls", false, "launch self 5 seconds later")
-	isAllowExec  = flag.Bool("allowexec", false, "Allow terminal commands to be executed")
-
-	// regular expression to sort the serial port list
-	// typically this wouldn't be provided, but if the user wants to clean
-	// up their list with a regexp so it's cleaner inside their end-user interface
-	// such as ChiliPeppr, this can make the massive list that Linux gives back
-	// to you be a bit more manageable
-	regExpFilter = flag.String("regex", "", "Regular expression to filter serial port list")
-
-	// allow garbageCollection()
-	//isGC = flag.Bool("gc", false, "Is garbage collection on? Off by default.")
-	//isGC = flag.Bool("gc", true, "Is garbage collection on? Off by default.")
-	gcType = flag.String("gc", "std", "Type of garbage collection. std = Normal garbage collection allowing system to decide (this has been known to cause a stop the world in the middle of a CNC job which can cause lost responses from the CNC controller and thus stalled jobs. use max instead to solve.), off = let memory grow unbounded (you have to send in the gc command manually to garbage collect or you will run out of RAM eventually), max = Force garbage collection on each recv or send on a serial port (this minimizes stop the world events and thus lost serial responses, but increases CPU usage)")
-
-	// whether to do buffer flow debugging
-	bufFlowDebugType = flag.String("bufflowdebug", "off", "off = (default) We do not send back any debug JSON, on = We will send back a JSON response with debug info based on the configuration of the buffer flow that the user picked")
-
-	// hostname. allow user to override, otherwise we look it up
-	hostname = flag.String("hostname", "unknown-hostname", "Override the hostname we get from the OS")
+	sp "./serialport"
 )
 
 type NullWriter int
@@ -106,9 +74,9 @@ func main() {
 	// turn off garbage collection
 	// this is dangerous, as u could overflow memory
 	//if *isGC {
-	if *gcType == "std" {
+	if *cfg.GCType == "std" {
 		log.Println("Garbage collection is on using Standard mode, meaning we just let Golang determine when to garbage collect.")
-	} else if *gcType == "max" {
+	} else if *cfg.GCType == "max" {
 		log.Println("Garbage collection is on for MAXIMUM real-time collecting on each send/recv from serial port. Higher CPU, but less stopping of the world to garbage collect since it is being done on a constant basis.")
 	} else {
 		log.Println("Garbage collection is off. Memory use will grow unbounded. You WILL RUN OUT OF RAM unless you send in the gc command to manually force garbage collection. Lower CPU, but progressive memory footprint.")
@@ -139,8 +107,8 @@ func main() {
 	}
 
 	// list serial ports
-	portList, _ := GetList()
-	metaports, _ := GetMetaList()
+	portList, _ := sp.GetList()
+	metaports, _ := sp.GetMetaList()
 
 	/*if errSys != nil {
 		log.Printf("Got system error trying to retrieve serial port list. Err:%v\n", errSys)
